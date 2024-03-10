@@ -2,6 +2,7 @@ import sys
 import matplotlib.pyplot as plt
 from input_parser import InputParser
 from commands_processor import CommandsProcessor
+from segment import Node, Segment
 
 def main():
     if len(sys.argv) != 2:
@@ -15,6 +16,7 @@ def main():
     segments = commandProcessor.processCommands(commands)
     print(segments)
     print(len(segments))
+    print(any_intersections(segments))
     draw_edges(segments)
     
 def draw_edges(segments):
@@ -29,5 +31,82 @@ def draw_edges(segments):
     plt.title('Graphical representation of turtle path')
     plt.grid(True)
     plt.show()
+
+def is_left(point : Node, segment: Segment):
+    return (segment.end.x - segment.start.x) * (point.y - segment.start.y) - (point.x - segment.start.x) * (segment.end.y - segment.start.y)
+
+
+def intersect(segment1: Segment, segment2: Segment):
+    p1, p2 = segment1.start, segment1.end
+    p3, p4 = segment2.start, segment2.end
+
+    d1 = is_left(p3, segment1)
+    d2 = is_left(p4, segment1)
+    d3 = is_left(p1, segment2)
+    d4 = is_left(p2, segment2)
+
+    if (d1 > 0 and d2 < 0) or (d1 < 0 and d2 > 0) and (d3 > 0 and d4 < 0) or (d3 < 0 and d4 > 0):
+        return True
+    elif d1 == 0 and on_segment(p3, segment1):
+        return True
+    elif d2 == 0 and on_segment(p4, segment1):
+        return True
+    elif d3 == 0 and on_segment(p1, segment2):
+        return True
+    elif d4 == 0 and on_segment(p2, segment2):
+        return True
+    else:
+        return False
+
+def on_segment(point: Node, segment: Segment):
+    if min(segment.start.x, segment.end.x) <= point.x <= max(segment.start.x, segment.end.x) and min(segment.start.y, segment.end.y) <= point.y <= max(segment.start.y, segment.end.y):
+        return True
+    else:
+        return False
+    
+def any_intersections(segments: list[Segment]):
+    events = []
+    for i, segment in enumerate(segments):
+        events.append((segment.start.x, i, True))
+        events.append((segment.end.x, i, False))
+
+    events.sort()
+
+    active_segments = set()
+    for event in events:
+        label_index = event[1]
+        is_left_endpoint = event[2]
+        segment = segments[label_index]
+
+        if is_left_endpoint:
+            active_segments.add(label_index)
+            predecessor = None
+            successor = None
+            for active_segment in active_segments:
+                if active_segment < label_index:
+                    predecessor = active_segment
+                elif active_segment > label_index and successor is None:
+                    successor = active_segment
+                    break
+            if predecessor is not None and intersect(segments[predecessor], segment):
+                return True
+            if successor is not None and intersect(segments[label_index], segments[successor]):
+                return True
+        else:
+            if label_index in active_segments:  # Dodaj sprawdzenie przed usunięciem
+                active_segments.remove(label_index)
+            predecessor = None
+            successor = None
+            for active_segment in active_segments:
+                if active_segment < label_index:
+                    predecessor = active_segment
+                elif active_segment > label_index and successor is None:
+                    successor = active_segment
+                    break
+            if predecessor is not None and successor is not None and intersect(segments[predecessor], segments[successor]):
+                return True
+
+    return False
+
     
 main()
