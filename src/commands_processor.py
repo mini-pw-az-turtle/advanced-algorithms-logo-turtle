@@ -1,11 +1,11 @@
 import math
-from edge import *
+from segment import *
 from command import *
 
 class CommandsProcessor:
     
-    def processCommands(self, commands: list[Command]) -> list[Edge]:
-        edges : list[Edge] = []
+    def processCommands(self, commands: list[Command]) -> list[Segment]:
+        edges : list[Segment] = []
         currentPosition = Node(0,0)
         relativeAngle = 0 
         penDown = True
@@ -14,15 +14,15 @@ class CommandsProcessor:
             if(command.command_type in [CommandType.MOVE_FORWARD, CommandType.MOVE_BACKWARDS]):
                 currentPosition = self._processMove(command, start, relativeAngle)
                 if(penDown): 
-                    edges.append(Edge(start, currentPosition))
+                    edges.append(Segment(start, currentPosition))
             elif(command.command_type is CommandType.RIGHT_TURN):
                 relativeAngle = (relativeAngle + command.value) % 360
             elif(command.command_type is CommandType.LEFT_TURN):
                 relativeAngle = (relativeAngle - command.value) % 360
             elif(command.command_type is CommandType.PEN_DOWN):
-                penDown = False
-            elif(command.command_type is CommandType.PEN_UP):
                 penDown = True
+            elif(command.command_type is CommandType.PEN_UP):
+                penDown = False
         return edges
 
     def _processMove(self, command: Command, currentPosition : Node, relativeAngle: int):

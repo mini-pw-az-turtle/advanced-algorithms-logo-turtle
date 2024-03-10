@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-class Edge:
+class Segment:
     def __init__(self, start : Node, end : Node):
         self.start = start
         self.end = end

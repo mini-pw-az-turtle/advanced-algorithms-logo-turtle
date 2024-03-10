@@ -1,0 +1,24 @@
+fd 10
+rt 120
+fd 15
+rt 230
+fd 10
+lt 75
+fd 20
+lt 90
+fd 15
+rt 120
+fd 3
+rt 100
+fd 7
+penup
+fd 20
+lt 90
+fd 15
+rt 120
+fd 3
+rt 100
+fd 7
+pendown
+fd 10
+fd 20
