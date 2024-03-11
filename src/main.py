@@ -65,7 +65,7 @@ def on_segment(point: Node, segment: Segment):
         return False
     
 def any_intersections(segments: list[Segment]):
-    events = []
+    events = [] # TODO: Needs to be changed to balanced binary tree (AVL/black-red) to assure O(log(n)) complexity for adding and removing elements.
     for i, segment in enumerate(segments):
         events.append((segment.start.x, i, True))
         events.append((segment.end.x, i, False))
