@@ -25,7 +25,7 @@ class CommandsProcessor:
                 penDown = False
         return edges
 
-    def _processMove(self, command: Command, currentPosition : Node, relativeAngle: int):
+    def _processMove(self, command: Command, currentPosition : Node, relativeAngle: int) -> Node:
         radians = math.radians(relativeAngle)
         return self._processMoveForward(command, currentPosition, radians) \
             if command.command_type is CommandType.MOVE_FORWARD \

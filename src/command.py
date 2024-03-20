@@ -2,6 +2,9 @@ from __future__ import annotations
 from enum import Enum
 
 class Command:
+    command_type: CommandType
+    value: int
+    
     def __init__(self, command_type_value: CommandType, value: int = None):
         self.command_type = CommandType(command_type_value)
         self.value = value
