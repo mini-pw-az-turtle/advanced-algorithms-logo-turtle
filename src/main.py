@@ -2,7 +2,7 @@ import sys
 import matplotlib.pyplot as plt
 from input_parser import InputParser
 from commands_processor import CommandsProcessor
-from intersection_checker import any_intersections_avl, any_intersections_heap
+from intersection_checker import AnyIntersections
 
 def main():
     if len(sys.argv) != 2:
@@ -16,8 +16,7 @@ def main():
     segments = commandProcessor.processCommands(commands)
     print(segments)
     print(len(segments))
-    print(any_intersections_avl(segments))
-    print(any_intersections_heap(segments))
+    AnyIntersections.check_all(segments)
     draw_edges(segments)
     
 def draw_edges(segments):

@@ -1,3 +1,5 @@
+from enum import Enum
+from timeit import timeit
 from avlTree import AVLTree
 from segment import Node, Segment
 
@@ -31,6 +33,30 @@ def on_segment(point: Node, segment: Segment) -> bool:
         return True
     else:
         return False
+    
+def heapify(arr: list, n: int, i: int) -> None:
+        largest = i
+        l = 2 * i + 1
+        r = 2 * i + 2
+
+        if l < n and arr[l] > arr[largest]:
+            largest = l
+
+        if r < n and arr[r] > arr[largest]:
+            largest = r
+
+        if largest != i:
+            arr[i], arr[largest] = arr[largest], arr[i]
+            heapify(arr, n, largest)
+
+def heapSort(arr: list) -> list:
+        n = len(arr)
+        for i in range(n, -1, -1):
+            heapify(arr, n, i)
+        for i in range(n - 1, 0, -1):
+            arr[i], arr[0] = arr[0], arr[i]
+            heapify(arr, i, 0)
+        return arr
 
 def any_intersections_avl(segments: list[Segment]) -> bool:
     events = AVLTree()  # Using AVL tree instead of list
@@ -118,26 +144,23 @@ def any_intersections_heap(segments: list[Segment]) -> bool:
 
     return False
 
-def heapify(arr: list, n: int, i: int) -> None:
-        largest = i
-        l = 2 * i + 1
-        r = 2 * i + 2
+class AlgorithmBase(Enum):
+    AVL = 0
+    HEAP = 1
 
-        if l < n and arr[l] > arr[largest]:
-            largest = l
+class AnyIntersections:
+    @staticmethod
+    def check_all(segments: list[Segment]) -> None:
+        for base in AlgorithmBase:
+            print(f"For type {base.name} is in progress", end="\r")
+            value = AnyIntersections.do_for_base(segments, base)
+            execution_time = timeit(lambda: AnyIntersections.do_for_base(segments, base), number=1) * 1000
+            print(f"\033[KFor type {base.name}:\tresoult: {value}\ttime: {execution_time:.4f}ms")
 
-        if r < n and arr[r] > arr[largest]:
-            largest = r
-
-        if largest != i:
-            arr[i], arr[largest] = arr[largest], arr[i]
-            heapify(arr, n, largest)
-
-def heapSort(arr: list) -> list:
-        n = len(arr)
-        for i in range(n, -1, -1):
-            heapify(arr, n, i)
-        for i in range(n - 1, 0, -1):
-            arr[i], arr[0] = arr[0], arr[i]
-            heapify(arr, i, 0)
-        return arr
+    
+    @staticmethod
+    def do_for_base(segments: list[Segment], base: AlgorithmBase) -> bool:
+        if base == AlgorithmBase.AVL:
+            return any_intersections_avl(segments)
+        if base == AlgorithmBase.HEAP:
+            return any_intersections_heap(segments)
