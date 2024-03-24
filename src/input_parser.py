@@ -31,3 +31,15 @@ class InputParser:
             logging.error(f"An error occurred: {e}")
 
         return commands
+
+    @staticmethod
+    def write_commands_to_file(commands, filename):
+        try:
+            with open(filename, 'w') as file:
+                for command in commands:
+                    if command.value is None:
+                        file.write(f"{command.command_type.value}\n")
+                    else:
+                        file.write(f"{command.command_type.value} {command.value}\n")
+        except Exception as e:
+            logging.error(f"An error occurred while writing to file: {e}")
