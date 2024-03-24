@@ -1,23 +1,48 @@
 import sys
 import matplotlib.pyplot as plt
+from commandGenerator import generate_commands
 from input_parser import InputParser
 from commands_processor import CommandsProcessor
-from intersection_checker import AnyIntersections
+from intersection_checker import AlgorithmBase, AnyIntersections
 
 def main():
     if len(sys.argv) != 2:
-        print("Usage: python main.py <file_path>")
-        return
-    
-    print(f"Processing file {sys.argv[1]}.")
-    commands = InputParser.parse_file(sys.argv[1])
+        print(f"Processing file data/sample_bad.txt.")
+        commands = InputParser.parse_file("data/sample_bad.txt")
+    else:
+        print(f"Processing file {sys.argv[1]}.")
+        commands = InputParser.parse_file(sys.argv[1])
     
     commandProcessor = CommandsProcessor()
     segments = commandProcessor.processCommands(commands)
+
     print(segments)
     print(len(segments))
     AnyIntersections.check_all(segments)
     draw_edges(segments)
+
+    isIntersected = True
+    isNotIntersected = True
+    intersected = []
+    notIntersected = []
+    while(isIntersected or isNotIntersected):
+        segments = commandProcessor.processCommands(generate_commands(300, 1))
+        if not AnyIntersections.do_for_base(segments, AlgorithmBase.HEAP):
+            notIntersected = segments
+            isNotIntersected = False
+        if AnyIntersections.do_for_base(segments, AlgorithmBase.HEAP):
+            intersected = segments
+            isIntersected = False
+
+    print(notIntersected)
+    print(len(notIntersected))
+    AnyIntersections.check_all(notIntersected)
+    draw_edges(notIntersected)
+
+    print(intersected)
+    print(len(intersected))
+    AnyIntersections.check_all(intersected)
+    draw_edges(intersected)
     
 def draw_edges(segments):
     for idx, segment in enumerate(segments):

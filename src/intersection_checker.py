@@ -15,7 +15,7 @@ def intersect(segment1: Segment, segment2: Segment) -> bool:
     d3 = is_left(p1, segment2)
     d4 = is_left(p2, segment2)
 
-    if (d1 > 0 and d2 < 0) or (d1 < 0 and d2 > 0) and (d3 > 0 and d4 < 0) or (d3 < 0 and d4 > 0):
+    if (d1 > 0 and d2 < 0) or (d1 < 0 and d2 > 0) and ((d3 > 0 and d4 < 0) or (d3 < 0 and d4 > 0)):
         return True
     elif d1 == 0 and on_segment(p3, segment1):
         return True
@@ -29,7 +29,7 @@ def intersect(segment1: Segment, segment2: Segment) -> bool:
         return False
 
 def on_segment(point: Node, segment: Segment) -> bool:
-    if min(segment.start.x, segment.end.x) <= point.x <= max(segment.start.x, segment.end.x) and min(segment.start.y, segment.end.y) <= point.y <= max(segment.start.y, segment.end.y):
+    if min(segment.start.x, segment.end.x) < point.x < max(segment.start.x, segment.end.x) and min(segment.start.y, segment.end.y) < point.y < max(segment.start.y, segment.end.y):
         return True
     else:
         return False
@@ -85,7 +85,7 @@ def any_intersections_avl(segments: list[Segment]) -> bool:
             if successor is not None and intersect(segments[label_index], segments[successor]):
                 return True
         else:
-            if label_index in active_segments:  # Dodaj sprawdzenie przed usunięciem
+            if label_index in active_segments: 
                 active_segments.remove(label_index)
             predecessor = None
             successor = None

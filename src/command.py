@@ -1,5 +1,14 @@
-from __future__ import annotations
 from enum import Enum
+
+
+        
+class CommandType(Enum):
+    MOVE_FORWARD = 'fd'
+    MOVE_BACKWARDS = 'bk'
+    RIGHT_TURN = 'rt'
+    LEFT_TURN = 'lt'
+    PEN_DOWN = 'pendown'
+    PEN_UP = 'penup'
 
 class Command:
     command_type: CommandType
@@ -11,11 +20,3 @@ class Command:
         
     def __repr__(self) -> str:
         return f"{self.command_type.name}, value: {self.value}"
-        
-class CommandType(Enum):
-    MOVE_FORWARD = 'fd'
-    MOVE_BACKWARDS = 'bk'
-    RIGHT_TURN = 'rt'
-    LEFT_TURN = 'lt'
-    PEN_DOWN = 'pendown'
-    PEN_UP = 'penup'
