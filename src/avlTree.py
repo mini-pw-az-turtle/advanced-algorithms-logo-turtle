@@ -93,3 +93,70 @@ class AVLTree:
             yield from self._inorder_traversal(root.left)
             yield root.key
             yield from self._inorder_traversal(root.right)
+    
+    def _delete(self, root: AVLNode, key: Node) -> AVLNode:
+        if not root:
+            return root
+        
+        if key < root.key:
+            root.left = self._delete(root.left, key)
+        elif key > root.key:
+            root.right = self._delete(root.right, key)
+        else:
+            # Node to be deleted is found
+
+            if root.left is None:
+                temp = root.right
+                root = None
+                return temp
+            elif root.right is None:
+                temp = root.left
+                root = None
+                return temp
+
+            # Node with two children: Get the inorder successor (smallest
+            # in the right subtree)
+            temp = self._min_value_node(root.right)
+
+            # Copy the inorder successor's content to this node
+            root.key = temp.key
+
+            # Delete the inorder successor
+            root.right = self._delete(root.right, temp.key)
+
+        # Update height of the current node
+        root.height = 1 + max(self._get_height(root.left), self._get_height(root.right))
+
+        # Get the balance factor
+        balance = self._get_balance(root)
+
+        # If unbalanced, then balance the tree
+
+        # Left Left Case
+        if balance > 1 and self._get_balance(root.left) >= 0:
+            return self._right_rotate(root)
+
+        # Left Right Case
+        if balance > 1 and self._get_balance(root.left) < 0:
+            root.left = self._left_rotate(root.left)
+            return self._right_rotate(root)
+
+        # Right Right Case
+        if balance < -1 and self._get_balance(root.right) <= 0:
+            return self._left_rotate(root)
+
+        # Right Left Case
+        if balance < -1 and self._get_balance(root.right) > 0:
+            root.right = self._right_rotate(root.right)
+            return self._left_rotate(root)
+
+        return root
+
+    def _min_value_node(self, node: AVLNode) -> AVLNode:
+        current = node
+
+        # loop down to find the leftmost leaf
+        while current.left is not None:
+            current = current.left
+
+        return current

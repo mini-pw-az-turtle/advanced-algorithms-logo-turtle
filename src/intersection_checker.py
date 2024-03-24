@@ -4,9 +4,83 @@ from avlTree import AVLTree
 from segment import Node, Segment
 
 def is_left(point: Node, segment: Segment) -> float:
+    """
+    Determines whether a point is to the left, on, or to the right of a line segment.
+
+    Args:
+        point (Node): The point to be checked.
+        segment (Segment): The line segment.
+
+    Returns:
+        float: The determinant value indicating the point's position relative to the segment.
+               Positive if the point is to the left.
+               Negative if the point is to the right.
+               Zero     if the point is on the segment.
+    """
     return (segment.end.x - segment.start.x) * (point.y - segment.start.y) - (point.x - segment.start.x) * (segment.end.y - segment.start.y)
 
+def on_segment(point: Node, segment: Segment) -> bool:
+    """
+    Checks if a point lies on a given line segment.
+
+    Args:
+        point (Node): The point to be checked.
+        segment (Segment): The line segment.
+
+    Returns:
+        bool: True if the point lies on the segment, False otherwise or if point is exactly on either of end points of segment.
+    """
+    return min(segment.start.x, segment.end.x) < point.x < max(segment.start.x, segment.end.x) and min(segment.start.y, segment.end.y) < point.y < max(segment.start.y, segment.end.y)
+
+def CCW(p1: Node, p2: Node, p3: Node) -> float:
+    # to find the orientation of 
+    # an ordered triplet (p1,p2,p3)
+    # function returns the following values:
+    # 0 : Collinear points
+    # 1 : Clockwise points
+    # 2 : Counterclockwise
+    val = (float(p2.y - p1.y) * (p3.x - p2.x)) - \
+           (float(p2.x - p1.x) * (p3.y - p2.y))
+    if (val > 0):
+         
+        # Clockwise orientation
+        return 1
+    elif (val < 0):
+         
+        # Counterclockwise orientation
+        return 2
+    else:
+         
+        # Collinear orientation
+        return 0
+    
+def isIntersect(segment1: Segment, segment2: Segment) -> bool:
+    """
+    Checks whether two line segments intersect.
+
+    Args:
+        segment1 (Segment): The first line segment.
+        segment2 (Segment): The second line segment.
+
+    Returns:
+        bool: True if the line segments intersect, False otherwise.
+    """
+    a, b = segment1.start, segment1.end
+    c, d = segment2.start, segment2.end
+
+    return (not (CCW(a, c, d) == CCW(b, c, d))) and (not (CCW(a, b, c) == CCW(a, b, d)))
+
 def intersect(segment1: Segment, segment2: Segment) -> bool:
+    """
+    Checks whether two line segments intersect.
+
+    Args:
+        segment1 (Segment): The first line segment.
+        segment2 (Segment): The second line segment.
+
+    Returns:
+        bool: True if the line segments intersect, False otherwise.
+    """
     p1, p2 = segment1.start, segment1.end
     p3, p4 = segment2.start, segment2.end
 
@@ -24,12 +98,6 @@ def intersect(segment1: Segment, segment2: Segment) -> bool:
     elif d3 == 0 and on_segment(p1, segment2):
         return True
     elif d4 == 0 and on_segment(p2, segment2):
-        return True
-    else:
-        return False
-
-def on_segment(point: Node, segment: Segment) -> bool:
-    if min(segment.start.x, segment.end.x) < point.x < max(segment.start.x, segment.end.x) and min(segment.start.y, segment.end.y) < point.y < max(segment.start.y, segment.end.y):
         return True
     else:
         return False

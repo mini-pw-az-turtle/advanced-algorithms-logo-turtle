@@ -21,4 +21,7 @@ class Node:
     
     def __repr__(self) -> str:
         return f"({self.x},{self.y})"
+    
+    def __lt__(self, other: 'Node') -> bool:
+        return self.x < other.x
         
