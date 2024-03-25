@@ -1,0 +1,36 @@
+penup
+fd 15
+rt 43
+pendown
+fd 22
+lt 38
+fd 16
+lt 35
+fd 15
+rt 38
+fd 23
+rt 47
+fd 24
+lt 43
+fd 18
+lt 46
+fd 13
+lt 45
+fd 20
+rt 36
+fd 24
+lt 50
+fd 15
+lt 30
+fd 18
+rt 30
+fd 16
+lt 36
+fd 25
+lt 47
+fd 22
+rt 30
+fd 21
+rt 53
+fd 21
+rt 41

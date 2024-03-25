@@ -127,46 +127,155 @@ def heapSort(arr: list) -> list:
         return arr
 
 def any_intersections_avl(segments: list[Segment]) -> bool:
-    events = AVLTree()  # Using AVL tree instead of list
+    class Endpoint:
+        node: Node
+        label: int # Segment index
+        isLeft: bool # Is endpoint left in segment (has lesser x)
+
+        def __init__(self, node: Node, label: int, isLeft: bool):
+            self.node = node
+            self.label = label
+            self.isLeft = isLeft
+
+        def __lt__(self, other: 'Endpoint') -> bool:
+            if self == other:
+                return segments[self.label].start == self.node
+            else:
+                return self.node.x < other.node.x
+
+        def __gt__(self, other: 'Endpoint') -> bool:
+            if self == other:
+                return not segments[self.label].start == self.node
+            else:
+                return self.node.x > other.node.x
+
+        def __eq__(self, other: 'Endpoint') -> bool:
+            if isinstance(other, Endpoint):
+                return self.node.x == other.node.x
+            else :
+                return False
+
+        def __ne__(self, other: 'Endpoint') -> bool:
+            return not self.__eq__(other)
+    class Edge:
+        node: Node
+        label: int # Segment index
+        isLeft: bool # Is endpoint left in segment (has lesser x)
+
+        def __init__(self, node: Node, label: int, isLeft: bool):
+            self.node = node
+            self.label = label
+            self.isLeft = isLeft
+
+        def __lt__(self, other: 'Edge') -> bool:
+            otherLeft = segments[other.label].start
+            otherRight = segments[other.label].end
+            if segments[other.label].start.x > segments[other.label].end.x:
+                otherLeft, otherRight = otherRight, otherLeft
+            return CCW(otherLeft, otherRight, self.node) == 1
+
+        def __gt__(self, other: 'Edge') -> bool:
+            otherLeft = segments[other.label].start
+            otherRight = segments[other.label].end
+            if segments[other.label].start.x > segments[other.label].end.x:
+                otherLeft, otherRight = otherRight, otherLeft
+            return CCW(otherLeft, otherRight, self.node) == 2
+
+        def __eq__(self, other: 'Edge') -> bool:
+            if isinstance(other, Edge):
+                otherLeft = segments[other.label].start
+                otherRight = segments[other.label].end
+                if segments[other.label].start.x > segments[other.label].end.x:
+                    otherLeft, otherRight = otherRight, otherLeft
+                return CCW(otherLeft, otherRight, self.node) == 0
+            else :
+                return False
+
+        def __ne__(self, other: 'Edge') -> bool:
+            return not self.__eq__(other)
+
+    endpoints = AVLTree[Endpoint]()
+    activeEdges = AVLTree[Edge]()
     for i, segment in enumerate(segments):
-        events.insert((segment.start.x, i, True))
-        events.insert((segment.end.x, i, False))
+        isStartLeft = segment.start.x < segment.end.x
+        endpoints.insert(Endpoint(segment.start, i, isStartLeft))
+        endpoints.insert(Endpoint(segment.end, i, not isStartLeft))
 
-    active_segments = set()
-    for event in events.inorder_traversal():
-        label_index = event[1]
-        is_left_endpoint = event[2]
-        segment = segments[label_index]
+    
 
-        if is_left_endpoint:
-            active_segments.add(label_index)
-            predecessor = None
-            successor = None
-            for active_segment in active_segments:
-                if active_segment < label_index:
-                    predecessor = active_segment
-                elif active_segment > label_index and successor is None:
-                    successor = active_segment
-                    break
-            if predecessor is not None and intersect(segments[predecessor], segment):
+    for endpoint in endpoints.inorder_traversal():
+        segmentIndex = endpoint.label
+        isLeft = endpoint.isLeft
+        segment = segments[segmentIndex]
+        
+        print(f"active edges: ")
+        for edge in activeEdges.inorder_traversal():
+            print(f"edge {edge.label}", end=" ")
+        print("\n")
+
+        if isLeft:
+            # Edge is starting
+            activeEdges.insert(Edge(endpoint.node, endpoint.label, True))
+            pre = endpoints.find_predecessor(endpoint)
+            suc = endpoints.find_successor(endpoint)
+            if pre is not None and intersect(segments[segmentIndex], segments[pre.label]):
+                print(f"Intersection in {segmentIndex} and {pre.label}")
                 return True
-            if successor is not None and intersect(segments[label_index], segments[successor]):
+            if suc is not None and intersect(segments[segmentIndex], segments[suc.label]):
+                print(f"Intersection in {segmentIndex} and {suc.label}")
                 return True
         else:
-            if label_index in active_segments: 
-                active_segments.remove(label_index)
-            predecessor = None
-            successor = None
-            for active_segment in active_segments:
-                if active_segment < label_index:
-                    predecessor = active_segment
-                elif active_segment > label_index and successor is None:
-                    successor = active_segment
-                    break
-            if predecessor is not None and successor is not None and intersect(segments[predecessor], segments[successor]):
+            pre = endpoints.find_predecessor(endpoint)
+            suc = endpoints.find_successor(endpoint)
+            if suc is not None and pre is not None and intersect(segments[suc.label], segments[pre.label]):
+                print(f"Intersection in {suc.label} and {pre.label}")
                 return True
 
+            activeEdges.delete(Edge(endpoint.node, endpoint.label, False))
+
     return False
+
+
+
+    # events = AVLTree()  # Using AVL tree instead of list
+    # for i, segment in enumerate(segments):
+    #     events.insert((segment.start.x, i, True))
+    #     events.insert((segment.end.x, i, False))
+
+    # active_segments = set()
+    # for event in events.inorder_traversal():
+    #     label_index = event[1]
+    #     is_left_endpoint = event[2]
+    #     segment = segments[label_index]
+
+    #     if is_left_endpoint:
+    #         active_segments.add(label_index)
+    #         predecessor = None
+    #         successor = None
+    #         for active_segment in active_segments:
+    #             if active_segment < label_index:
+    #                 predecessor = active_segment
+    #             elif active_segment > label_index and successor is None:
+    #                 successor = active_segment
+    #                 break
+    #         if predecessor is not None and intersect(segments[predecessor], segment):
+    #             return True
+    #         if successor is not None and intersect(segments[label_index], segments[successor]):
+    #             return True
+    #     else:
+    #         if label_index in active_segments: 
+    #             active_segments.remove(label_index)
+    #         predecessor = None
+    #         successor = None
+    #         for active_segment in active_segments:
+    #             if active_segment < label_index:
+    #                 predecessor = active_segment
+    #             elif active_segment > label_index and successor is None:
+    #                 successor = active_segment
+    #                 break
+    #         if predecessor is not None and successor is not None and intersect(segments[predecessor], segments[successor]):
+    #             return True
+    # return False
 
 def any_intersections_heap(segments: list[Segment]) -> bool:
     events = [] # TODO: Needs to be changed to balanced binary tree (AVL/black-red) to assure O(log(n)) complexity for adding and removing elements.
