@@ -8,7 +8,7 @@ from intersection_checker import AlgorithmBase, AnyIntersections
 def main():
     if len(sys.argv) != 2:
         #commands = InputParser.parse_file("data/sample_bad.txt")
-        commands = InputParser.parse_file("data/intersected-butNot-v3.txt")
+        commands = InputParser.parse_file("data/intersected-butNot-v4.txt")
         #commands = InputParser.parse_file("data/notIntersected_butIntersected.txt")
     else:
         print(f"Processing file {sys.argv[1]}.")

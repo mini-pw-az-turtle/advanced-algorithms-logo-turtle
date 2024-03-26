@@ -18,7 +18,7 @@ def is_left(point: Node, segment: Segment) -> float:
                Negative if the point is to the right.
                Zero     if the point is on the segment.
     """
-    return (segment.end.x - segment.start.x) * (point.y - segment.start.y) - (point.x - segment.start.x) * (segment.end.y - segment.start.y)
+    return (segment.start.x - point.x) * (segment.end.y - point.y) - (segment.start.y - point.y) * (segment.end.x - point.x)
 
 def on_segment(point: Node, segment: Segment) -> bool:
     """
@@ -85,20 +85,20 @@ def intersect(segment1: Segment, segment2: Segment) -> bool:
     p1, p2 = segment1.start, segment1.end
     p3, p4 = segment2.start, segment2.end
 
-    d1 = is_left(p3, segment1)
-    d2 = is_left(p4, segment1)
-    d3 = is_left(p1, segment2)
-    d4 = is_left(p2, segment2)
+    d1 = is_left(p1, segment2)
+    d2 = is_left(p2, segment2)
+    d3 = is_left(p3, segment1)
+    d4 = is_left(p4, segment1)
 
-    if (d1 > 0 and d2 < 0) or (d1 < 0 and d2 > 0) and ((d3 > 0 and d4 < 0) or (d3 < 0 and d4 > 0)):
+    if ((d1 > 0 and d2 < 0) or (d1 < 0 and d2 > 0)) and ((d3 > 0 and d4 < 0) or (d3 < 0 and d4 > 0)):
         return True
-    elif d1 == 0 and on_segment(p3, segment1):
+    elif d1 == 0 and on_segment(p1, segment2):
         return True
-    elif d2 == 0 and on_segment(p4, segment1):
+    elif d2 == 0 and on_segment(p2, segment2):
         return True
-    elif d3 == 0 and on_segment(p1, segment2):
+    elif d3 == 0 and on_segment(p3, segment1):
         return True
-    elif d4 == 0 and on_segment(p2, segment2):
+    elif d4 == 0 and on_segment(p4, segment1):
         return True
     else:
         return False
@@ -165,8 +165,10 @@ def any_intersections_avl(segments: list[Segment]) -> bool:
         def __ne__(self, other: 'Endpoint') -> bool:
             return not self.__eq__(other)
     class Edge:
-        
-        label: int # Segment index
+        label: int  # Segment index
+
+        def __init__(self, label: int):
+            self.label = label
 
         def _getNodesSorted(self) -> Tuple[Node, Node]:
             segment = segments[self.label]
@@ -174,48 +176,45 @@ def any_intersections_avl(segments: list[Segment]) -> bool:
                 isStartLeft = segment.start.y < segment.end.y
             else:
                 isStartLeft = segment.start.x < segment.end.x
-            
+
             if isStartLeft:
-                return (segment.start, segment.end)
+                return segment.start, segment.end
             else:
-                return (segment.end, segment.start)
-            
+                return segment.end, segment.start
+
         def _getLeft(self) -> Node:
             return self._getNodesSorted()[0]
-        
+
         def _getRight(self) -> Node:
             return self._getNodesSorted()[1]
 
-        def __init__(self,label: int):
-            self.label = label
+        def compare_y(self, other: 'Edge') -> int:
+            # Calculate cross product to determine which edge is above the other
+            self_left, self_right = self._getNodesSorted()
+            other_left, other_right = other._getNodesSorted()
+
+            self_vector = (self_right.x - self_left.x, self_right.y - self_left.y)
+            other_vector = (other_right.x - other_left.x, other_right.y - other_left.y)
+
+            cross_product = self_vector[0] * other_vector[1] - self_vector[1] * other_vector[0]
+
+            if cross_product > 0:
+                return -1  # self is above other
+            elif cross_product < 0:
+                return 1   # other is above self
+            else:
+                return 0   # same line
 
         def __lt__(self, other: 'Edge') -> bool:
-            otherLeft = segments[other.label].start
-            otherRight = segments[other.label].end
-            if segments[other.label].start.x > segments[other.label].end.x:
-                otherLeft, otherRight = otherRight, otherLeft
-            if CCW(otherLeft, otherRight, self._getLeft()) == 1:
-                return True
-            elif CCW(otherLeft, otherRight, self._getLeft()) == 0:
-                return otherLeft.y >= self._getLeft().y and otherRight.y >= self._getLeft().y
-            return False
+            return self.compare_y(other) < 0
 
         def __gt__(self, other: 'Edge') -> bool:
-            otherLeft = segments[other.label].start
-            otherRight = segments[other.label].end
-            if segments[other.label].start.x > segments[other.label].end.x:
-                otherLeft, otherRight = otherRight, otherLeft
-            if CCW(otherLeft, otherRight, self._getLeft()) == 2:
-                return True
-            elif CCW(otherLeft, otherRight, self._getLeft()) == 0:
-                return otherLeft.y <= self._getLeft().y and otherRight.y <= self._getLeft().y
-            
-            return False
+            return self.compare_y(other) > 0
 
         def __eq__(self, other: 'Edge') -> bool:
             if isinstance(other, Edge):
                 return self.label == other.label
-            else :
+            else:
                 return False
 
         def __ne__(self, other: 'Edge') -> bool:
@@ -246,10 +245,13 @@ def any_intersections_avl(segments: list[Segment]) -> bool:
         pre = suc = None
 
         if isLeft:
+
             # Edge is starting
             newEdge = Edge(endpoint.label)
+
             activeEdges.append(newEdge)
             activeEdges.sort()
+
             for i, edge in enumerate(activeEdges):
                 if edge.label == endpoint.label:
                     newEdgeIndx = i
@@ -257,10 +259,11 @@ def any_intersections_avl(segments: list[Segment]) -> bool:
                 pre = activeEdges[newEdgeIndx-1]
             if newEdgeIndx < len(activeEdges) - 1:
                 suc = activeEdges[newEdgeIndx+1]
-            if pre is not None and isIntersect(segments[segmentIndex], segments[pre.label]):
+
+            if pre is not None and intersect(segments[segmentIndex], segments[pre.label]):
                 print(f"Intersection in {segmentIndex} and {pre.label}")
                 return True
-            if suc is not None and isIntersect(segments[segmentIndex], segments[suc.label]):
+            if suc is not None and intersect(segments[segmentIndex], segments[suc.label]):
                 print(f"Intersection in {segmentIndex} and {suc.label}")
                 return True
         else:
@@ -272,7 +275,7 @@ def any_intersections_avl(segments: list[Segment]) -> bool:
             if newEdgeIndx < len(activeEdges) - 1:
                 suc = activeEdges[newEdgeIndx+1]
 
-            if suc is not None and pre is not None and isIntersect(segments[suc.label], segments[pre.label]):
+            if suc is not None and pre is not None and intersect(segments[suc.label], segments[pre.label]):
                 print(f"Intersection in {suc.label} and {pre.label}")
                 return True
             
