@@ -143,7 +143,7 @@ def any_intersections_avl(segments: list[Segment]) -> bool:
                 if self.isLeft == other.isLeft:
                     return self.node.y < other.node.y
                 else:
-                    return other.isLeft
+                    return self.isLeft
             else:
                 return self.node.x < other.node.x
 
@@ -152,13 +152,18 @@ def any_intersections_avl(segments: list[Segment]) -> bool:
                 if self.isLeft == other.isLeft:
                     return self.node.y > other.node.y
                 else:
-                    return self.isLeft
+                    return other.isLeft
             else:
                 return self.node.x > other.node.x
 
         def __eq__(self, other: 'Endpoint') -> bool:
             if isinstance(other, Endpoint):
-                return self.node.x == other.node.x
+                if self.node.x == other.node.x:
+                    return True
+                elif self.isLeft == other.isLeft:
+                    return True
+                else:
+                    return self.node.y == other.node.y
             else :
                 return False
 
@@ -224,7 +229,7 @@ def any_intersections_avl(segments: list[Segment]) -> bool:
     activeEdges = list[Edge]()
     for i, segment in enumerate(segments):
         if segment.start.x == segment.end.x:
-            isStartLeft = segment.start.y < segment.end.y
+            isStartLeft = segment.start.y <= segment.end.y
         else:
             isStartLeft = segment.start.x < segment.end.x
         endpoints.append(Endpoint(segment.start, i, isStartLeft))
