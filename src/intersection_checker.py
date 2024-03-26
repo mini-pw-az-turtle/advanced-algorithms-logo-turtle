@@ -1,5 +1,6 @@
 from enum import Enum
 from timeit import timeit
+from typing import Tuple
 from avlTree import AVLTree
 from segment import Node, Segment
 
@@ -138,14 +139,20 @@ def any_intersections_avl(segments: list[Segment]) -> bool:
             self.isLeft = isLeft
 
         def __lt__(self, other: 'Endpoint') -> bool:
-            if self == other:
-                return segments[self.label].start == self.node
+            if self.node.x == other.node.x:
+                if self.isLeft == other.isLeft:
+                    return self.node.y < other.node.y
+                else:
+                    return other.isLeft
             else:
                 return self.node.x < other.node.x
 
         def __gt__(self, other: 'Endpoint') -> bool:
-            if self == other:
-                return not segments[self.label].start == self.node
+            if self.node.x == other.node.x:
+                if self.isLeft == other.isLeft:
+                    return self.node.y > other.node.y
+                else:
+                    return self.isLeft
             else:
                 return self.node.x > other.node.x
 
@@ -158,80 +165,118 @@ def any_intersections_avl(segments: list[Segment]) -> bool:
         def __ne__(self, other: 'Endpoint') -> bool:
             return not self.__eq__(other)
     class Edge:
-        node: Node
+        
         label: int # Segment index
-        isLeft: bool # Is endpoint left in segment (has lesser x)
 
-        def __init__(self, node: Node, label: int, isLeft: bool):
-            self.node = node
+        def _getNodesSorted(self) -> Tuple[Node, Node]:
+            segment = segments[self.label]
+            if segment.start.x == segment.end.x:
+                isStartLeft = segment.start.y < segment.end.y
+            else:
+                isStartLeft = segment.start.x < segment.end.x
+            
+            if isStartLeft:
+                return (segment.start, segment.end)
+            else:
+                return (segment.end, segment.start)
+            
+        def _getLeft(self) -> Node:
+            return self._getNodesSorted()[0]
+        
+        def _getRight(self) -> Node:
+            return self._getNodesSorted()[1]
+
+        def __init__(self,label: int):
             self.label = label
-            self.isLeft = isLeft
 
         def __lt__(self, other: 'Edge') -> bool:
             otherLeft = segments[other.label].start
             otherRight = segments[other.label].end
             if segments[other.label].start.x > segments[other.label].end.x:
                 otherLeft, otherRight = otherRight, otherLeft
-            return CCW(otherLeft, otherRight, self.node) == 1
+            if CCW(otherLeft, otherRight, self._getLeft()) == 1:
+                return True
+            elif CCW(otherLeft, otherRight, self._getLeft()) == 0:
+                return otherLeft.y >= self._getLeft().y and otherRight.y >= self._getLeft().y
+            return False
 
         def __gt__(self, other: 'Edge') -> bool:
             otherLeft = segments[other.label].start
             otherRight = segments[other.label].end
             if segments[other.label].start.x > segments[other.label].end.x:
                 otherLeft, otherRight = otherRight, otherLeft
-            return CCW(otherLeft, otherRight, self.node) == 2
+            if CCW(otherLeft, otherRight, self._getLeft()) == 2:
+                return True
+            elif CCW(otherLeft, otherRight, self._getLeft()) == 0:
+                return otherLeft.y <= self._getLeft().y and otherRight.y <= self._getLeft().y
+            
+            return False
 
         def __eq__(self, other: 'Edge') -> bool:
             if isinstance(other, Edge):
-                otherLeft = segments[other.label].start
-                otherRight = segments[other.label].end
-                if segments[other.label].start.x > segments[other.label].end.x:
-                    otherLeft, otherRight = otherRight, otherLeft
-                return CCW(otherLeft, otherRight, self.node) == 0
+                return self.label == other.label
             else :
                 return False
 
         def __ne__(self, other: 'Edge') -> bool:
             return not self.__eq__(other)
 
-    endpoints = AVLTree[Endpoint]()
-    activeEdges = AVLTree[Edge]()
+    endpoints = list[Endpoint]()
+    activeEdges = list[Edge]()
     for i, segment in enumerate(segments):
-        isStartLeft = segment.start.x < segment.end.x
-        endpoints.insert(Endpoint(segment.start, i, isStartLeft))
-        endpoints.insert(Endpoint(segment.end, i, not isStartLeft))
-
+        if segment.start.x == segment.end.x:
+            isStartLeft = segment.start.y < segment.end.y
+        else:
+            isStartLeft = segment.start.x < segment.end.x
+        endpoints.append(Endpoint(segment.start, i, isStartLeft))
+        endpoints.append(Endpoint(segment.end, i, not isStartLeft))
+    endpoints.sort()
     
 
-    for endpoint in endpoints.inorder_traversal():
+    for endpoint in endpoints:
         segmentIndex = endpoint.label
         isLeft = endpoint.isLeft
         segment = segments[segmentIndex]
         
         print(f"active edges: ")
-        for edge in activeEdges.inorder_traversal():
+        for edge in activeEdges:
             print(f"edge {edge.label}", end=" ")
         print("\n")
 
+        pre = suc = None
+
         if isLeft:
             # Edge is starting
-            activeEdges.insert(Edge(endpoint.node, endpoint.label, True))
-            pre = endpoints.find_predecessor(endpoint)
-            suc = endpoints.find_successor(endpoint)
-            if pre is not None and intersect(segments[segmentIndex], segments[pre.label]):
+            newEdge = Edge(endpoint.label)
+            activeEdges.append(newEdge)
+            activeEdges.sort()
+            for i, edge in enumerate(activeEdges):
+                if edge.label == endpoint.label:
+                    newEdgeIndx = i
+            if newEdgeIndx > 0:
+                pre = activeEdges[newEdgeIndx-1]
+            if newEdgeIndx < len(activeEdges) - 1:
+                suc = activeEdges[newEdgeIndx+1]
+            if pre is not None and isIntersect(segments[segmentIndex], segments[pre.label]):
                 print(f"Intersection in {segmentIndex} and {pre.label}")
                 return True
-            if suc is not None and intersect(segments[segmentIndex], segments[suc.label]):
+            if suc is not None and isIntersect(segments[segmentIndex], segments[suc.label]):
                 print(f"Intersection in {segmentIndex} and {suc.label}")
                 return True
         else:
-            pre = endpoints.find_predecessor(endpoint)
-            suc = endpoints.find_successor(endpoint)
-            if suc is not None and pre is not None and intersect(segments[suc.label], segments[pre.label]):
+            for i, edge in enumerate(activeEdges):
+                if edge.label == endpoint.label:
+                    newEdgeIndx = i
+            if newEdgeIndx > 0:
+                pre = activeEdges[newEdgeIndx-1]
+            if newEdgeIndx < len(activeEdges) - 1:
+                suc = activeEdges[newEdgeIndx+1]
+
+            if suc is not None and pre is not None and isIntersect(segments[suc.label], segments[pre.label]):
                 print(f"Intersection in {suc.label} and {pre.label}")
                 return True
-
-            activeEdges.delete(Edge(endpoint.node, endpoint.label, False))
+            
+            activeEdges = list(filter(lambda x: x.label != endpoint.label, activeEdges))     
 
     return False
 

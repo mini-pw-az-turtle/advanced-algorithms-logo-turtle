@@ -101,15 +101,15 @@ class AVLTree(Generic[T]):
             yield from self._inorder_traversal(root.right)
 
     def delete(self, key: T) -> AVLNode[T]:
-        tmp = self._delete(self.root, key)
-        if tmp == None and key == self.root.key:
-            self.root = None
-        return tmp
+        if self.root is not None:
+            self.root = self._delete(self.root, key)
+            return self.root
+        return  None
 
     def _delete(self, root: AVLNode[T], key: T) -> AVLNode[T]:
         if not root:
             return root
-        
+            
         if key < root.key:
             root.left = self._delete(root.left, key)
         elif key > root.key:
@@ -118,13 +118,9 @@ class AVLTree(Generic[T]):
             # Node to be deleted is found
 
             if root.left is None:
-                temp = root.right
-                root = None
-                return temp
+                return root.right
             elif root.right is None:
-                temp = root.left
-                root = None
-                return temp
+                return root.left
 
             # Node with two children: Get the inorder successor (smallest
             # in the right subtree)
