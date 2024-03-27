@@ -8,8 +8,8 @@ from intersection_checker import AlgorithmBase, AnyIntersections
 def main():
     if len(sys.argv) != 2:
         #commands = InputParser.parse_file("data/sample_bad.txt")
-        commands = InputParser.parse_file("data/intersected-butNot-v4.txt")
-        #commands = InputParser.parse_file("data/notIntersected_butIntersected.txt")
+        #commands = InputParser.parse_file("notIntersected.txt")
+        commands = InputParser.parse_file("data/notIntersected-butYes-v3.txt")
     else:
         print(f"Processing file {sys.argv[1]}.")
         commands = InputParser.parse_file(sys.argv[1])
@@ -22,31 +22,31 @@ def main():
     AnyIntersections.check_all(segments)
     draw_edges(segments)
 
-    isIntersected = True
-    isNotIntersected = True
-    intersected = []
-    notIntersected = []
-    while(isIntersected or isNotIntersected):
-        commands = generate_commands(300, 1)
-        segments = commandProcessor.processCommands(commands)
-        if not AnyIntersections.do_for_base(segments, AlgorithmBase.AVL):
-            notIntersected = segments
-            InputParser.write_commands_to_file(commands, "notIntersected.txt")
-            isNotIntersected = False
-        if AnyIntersections.do_for_base(segments, AlgorithmBase.AVL):
-            intersected = segments
-            InputParser.write_commands_to_file(commands, "intersected.txt")
-            isIntersected = False
+    # isIntersected = True
+    # isNotIntersected = True
+    # intersected = []
+    # notIntersected = []
+    # while(isIntersected or isNotIntersected):
+    #     commands = generate_commands(300, 3)
+    #     segments = commandProcessor.processCommands(commands)
+    #     if not AnyIntersections.do_for_base(segments, AlgorithmBase.AVL):
+    #         notIntersected = segments
+    #         InputParser.write_commands_to_file(commands, "notIntersected.txt")
+    #         isNotIntersected = False
+    #     if AnyIntersections.do_for_base(segments, AlgorithmBase.AVL):
+    #         intersected = segments
+    #         InputParser.write_commands_to_file(commands, "intersected.txt")
+    #         isIntersected = False
 
-    print(notIntersected)
-    print(len(notIntersected))
-    AnyIntersections.check_all(notIntersected)
-    draw_edges(notIntersected)
+    # print(notIntersected)
+    # print(len(notIntersected))
+    # AnyIntersections.check_all(notIntersected)
+    # draw_edges(notIntersected)
 
-    print(intersected)
-    print(len(intersected))
-    AnyIntersections.check_all(intersected)
-    draw_edges(intersected)
+    # print(intersected)
+    # print(len(intersected))
+    # AnyIntersections.check_all(intersected)
+    # draw_edges(intersected)
     
 def draw_edges(segments):
     for idx, segment in enumerate(segments):

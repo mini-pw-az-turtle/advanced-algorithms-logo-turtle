@@ -1,46 +1,46 @@
 penup
-fd 24
-lt 44
-pendown
-fd 9
-rt 49
-fd 15
-lt 46
-fd 9
-rt 57
-fd 16
-lt 55
-fd 5
-rt 49
-fd 5
-lt 46
-fd 24
-rt 40
-fd 17
-lt 42
-fd 8
-rt 39
 fd 23
 rt 59
-fd 17
-lt 46
-fd 8
-lt 45
+pendown
 fd 20
-lt 36
-fd 10
-lt 60
-fd 14
-lt 55
-fd 22
-rt 49
-fd 17
-lt 40
+lt 59
 fd 7
-rt 54
+rt 43
+fd 21
+lt 37
+fd 22
+rt 56
+fd 17
+lt 58
+fd 16
+rt 51
+penup
 fd 24
+lt 57
+pendown
+fd 20
+rt 56
+fd 17
+rt 53
+fd 22
+lt 57
+fd 25
+rt 46
+fd 25
+lt 55
+penup
+fd 21
+lt 41
+pendown
+fd 23
+lt 54
+fd 20
+lt 42
+fd 9
+rt 47
+fd 20
+lt 60
+fd 21
 rt 58
-fd 14
-lt 56
-fd 24
-lt 56
+fd 20
+lt 53

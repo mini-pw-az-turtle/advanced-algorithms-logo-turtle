@@ -33,44 +33,6 @@ def on_segment(point: Node, segment: Segment) -> bool:
     """
     return min(segment.start.x, segment.end.x) < point.x < max(segment.start.x, segment.end.x) and min(segment.start.y, segment.end.y) < point.y < max(segment.start.y, segment.end.y)
 
-def CCW(p1: Node, p2: Node, p3: Node) -> float:
-    # to find the orientation of 
-    # an ordered triplet (p1,p2,p3)
-    # function returns the following values:
-    # 0 : Collinear points
-    # 1 : Clockwise points
-    # 2 : Counterclockwise
-    val = (float(p2.y - p1.y) * (p3.x - p2.x)) - \
-           (float(p2.x - p1.x) * (p3.y - p2.y))
-    if (val > 0):
-         
-        # Clockwise orientation
-        return 1
-    elif (val < 0):
-         
-        # Counterclockwise orientation
-        return 2
-    else:
-         
-        # Collinear orientation
-        return 0
-    
-def isIntersect(segment1: Segment, segment2: Segment) -> bool:
-    """
-    Checks whether two line segments intersect.
-
-    Args:
-        segment1 (Segment): The first line segment.
-        segment2 (Segment): The second line segment.
-
-    Returns:
-        bool: True if the line segments intersect, False otherwise.
-    """
-    a, b = segment1.start, segment1.end
-    c, d = segment2.start, segment2.end
-
-    return (not (CCW(a, c, d) == CCW(b, c, d))) and (not (CCW(a, b, c) == CCW(a, b, d)))
-
 def intersect(segment1: Segment, segment2: Segment) -> bool:
     """
     Checks whether two line segments intersect.
@@ -156,16 +118,7 @@ def any_intersections_avl(segments: list[Segment]) -> bool:
             else:
                 return self.node.x > other.node.x
 
-        def __eq__(self, other: 'Endpoint') -> bool:
-            if isinstance(other, Endpoint):
-                if self.node.x == other.node.x:
-                    return True
-                elif self.isLeft == other.isLeft:
-                    return True
-                else:
-                    return self.node.y == other.node.y
-            else :
-                return False
+
 
         def __ne__(self, other: 'Endpoint') -> bool:
             return not self.__eq__(other)
@@ -227,6 +180,8 @@ def any_intersections_avl(segments: list[Segment]) -> bool:
 
     endpoints = list[Endpoint]()
     activeEdges = list[Edge]()
+
+    #activeEdges = AVLTree[Edge]()
     for i, segment in enumerate(segments):
         if segment.start.x == segment.end.x:
             isStartLeft = segment.start.y <= segment.end.y
@@ -244,13 +199,14 @@ def any_intersections_avl(segments: list[Segment]) -> bool:
         
         print(f"active edges: ")
         for edge in activeEdges:
+
+        #for edge in activeEdges.inorder_traversal():
             print(f"edge {edge.label}", end=" ")
         print("\n")
 
         pre = suc = None
 
         if isLeft:
-
             # Edge is starting
             newEdge = Edge(endpoint.label)
 
@@ -265,6 +221,11 @@ def any_intersections_avl(segments: list[Segment]) -> bool:
             if newEdgeIndx < len(activeEdges) - 1:
                 suc = activeEdges[newEdgeIndx+1]
 
+
+            # activeEdges.insert(newEdge)
+            # pre = activeEdges.find_predecessor(newEdge)
+            # suc = activeEdges.find_successor(newEdge)
+
             if pre is not None and intersect(segments[segmentIndex], segments[pre.label]):
                 print(f"Intersection in {segmentIndex} and {pre.label}")
                 return True
@@ -272,6 +233,7 @@ def any_intersections_avl(segments: list[Segment]) -> bool:
                 print(f"Intersection in {segmentIndex} and {suc.label}")
                 return True
         else:
+            # Edge is endding
             for i, edge in enumerate(activeEdges):
                 if edge.label == endpoint.label:
                     newEdgeIndx = i
@@ -280,55 +242,20 @@ def any_intersections_avl(segments: list[Segment]) -> bool:
             if newEdgeIndx < len(activeEdges) - 1:
                 suc = activeEdges[newEdgeIndx+1]
 
+            # newEdge = Edge(endpoint.label)
+
+            # pre = activeEdges.find_predecessor(newEdge)
+            # suc = activeEdges.find_successor(newEdge)
+
             if suc is not None and pre is not None and intersect(segments[suc.label], segments[pre.label]):
                 print(f"Intersection in {suc.label} and {pre.label}")
                 return True
             
             activeEdges = list(filter(lambda x: x.label != endpoint.label, activeEdges))     
+              
+            # activeEdges.delete(newEdge)
 
     return False
-
-
-
-    # events = AVLTree()  # Using AVL tree instead of list
-    # for i, segment in enumerate(segments):
-    #     events.insert((segment.start.x, i, True))
-    #     events.insert((segment.end.x, i, False))
-
-    # active_segments = set()
-    # for event in events.inorder_traversal():
-    #     label_index = event[1]
-    #     is_left_endpoint = event[2]
-    #     segment = segments[label_index]
-
-    #     if is_left_endpoint:
-    #         active_segments.add(label_index)
-    #         predecessor = None
-    #         successor = None
-    #         for active_segment in active_segments:
-    #             if active_segment < label_index:
-    #                 predecessor = active_segment
-    #             elif active_segment > label_index and successor is None:
-    #                 successor = active_segment
-    #                 break
-    #         if predecessor is not None and intersect(segments[predecessor], segment):
-    #             return True
-    #         if successor is not None and intersect(segments[label_index], segments[successor]):
-    #             return True
-    #     else:
-    #         if label_index in active_segments: 
-    #             active_segments.remove(label_index)
-    #         predecessor = None
-    #         successor = None
-    #         for active_segment in active_segments:
-    #             if active_segment < label_index:
-    #                 predecessor = active_segment
-    #             elif active_segment > label_index and successor is None:
-    #                 successor = active_segment
-    #                 break
-    #         if predecessor is not None and successor is not None and intersect(segments[predecessor], segments[successor]):
-    #             return True
-    # return False
 
 def any_intersections_heap(segments: list[Segment]) -> bool:
     events = [] # TODO: Needs to be changed to balanced binary tree (AVL/black-red) to assure O(log(n)) complexity for adding and removing elements.
