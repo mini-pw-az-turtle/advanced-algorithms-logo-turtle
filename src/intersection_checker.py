@@ -146,28 +146,21 @@ def any_intersections_avl(segments: list[Segment]) -> bool:
         def _getRight(self) -> Node:
             return self._getNodesSorted()[1]
 
-        def compare_y(self, other: 'Edge') -> int:
+        def compare_y(self, other: 'Edge') -> bool:
             # Calculate cross product to determine which edge is above the other
-            self_left, self_right = self._getNodesSorted()
-            other_left, other_right = other._getNodesSorted()
+            self_left, _ = self._getNodesSorted()
+            other_left, _ = other._getNodesSorted()
 
-            self_vector = (self_right.x - self_left.x, self_right.y - self_left.y)
-            other_vector = (other_right.x - other_left.x, other_right.y - other_left.y)
-
-            cross_product = self_vector[0] * other_vector[1] - self_vector[1] * other_vector[0]
-
-            if cross_product > 0:
-                return -1  # self is above other
-            elif cross_product < 0:
-                return 1   # other is above self
+            if self_left.y==other_left.y:
+                return self_left.x < other_left.x
             else:
-                return 0   # same line
+                return self_left.y < other_left.y
 
         def __lt__(self, other: 'Edge') -> bool:
-            return self.compare_y(other) < 0
+            return self.compare_y(other)
 
         def __gt__(self, other: 'Edge') -> bool:
-            return self.compare_y(other) > 0
+            return not self.compare_y(other)
 
         def __eq__(self, other: 'Edge') -> bool:
             if isinstance(other, Edge):

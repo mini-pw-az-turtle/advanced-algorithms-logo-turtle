@@ -10,6 +10,7 @@ def main():
         #commands = InputParser.parse_file("data/sample_bad.txt")
         #commands = InputParser.parse_file("notIntersected.txt")
         commands = InputParser.parse_file("data/notIntersected-butYes-v3.txt")
+        #commands = InputParser.parse_file("data/intersected-butNot-v5.txt")
     else:
         print(f"Processing file {sys.argv[1]}.")
         commands = InputParser.parse_file(sys.argv[1])
