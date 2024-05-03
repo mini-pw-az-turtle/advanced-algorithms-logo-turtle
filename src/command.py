@@ -7,8 +7,8 @@ class CommandType(Enum):
     MOVE_BACKWARDS = 'bk'
     RIGHT_TURN = 'rt'
     LEFT_TURN = 'lt'
-    PEN_DOWN = 'pendown'
-    PEN_UP = 'penup'
+    PEN_DOWN = 'pd'
+    PEN_UP = 'pu'
 
 class Command:
     command_type: CommandType

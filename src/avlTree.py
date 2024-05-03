@@ -1,30 +1,30 @@
-from __future__ import annotations
+from typing import TypeVar, Generic, Optional, Generator
 
-from typing import Generator
-from segment import Node
+T = TypeVar('T')
 
-class AVLNode:
-    key: Node
-    left: AVLNode
-    right: AVLNode
+class AVLNode(Generic[T]):
+    key: T
+    left: 'AVLNode[T]'
+    right: 'AVLNode[T]'
     height: int
 
-    def __init__(self, key: Node):
+    def __init__(self, key: T):
         self.key = key
         self.left = None
         self.right = None
         self.height = 1
 
-class AVLTree:
-    root: AVLNode
+
+class AVLTree(Generic[T]):
+    root: AVLNode[T]
 
     def __init__(self):
         self.root = None
 
-    def insert(self, key: Node):
+    def insert(self, key: T):
         self.root = self._insert(self.root, key)
 
-    def _insert(self, root: AVLNode, key: Node) -> AVLNode:
+    def _insert(self, root: AVLNode[T], key: T) -> AVLNode[T]:
         if not root:
             return AVLNode(key)
         elif key < root.key:
@@ -51,8 +51,11 @@ class AVLTree:
 
         return root
 
-    def _left_rotate(self, z: AVLNode) -> AVLNode:
+    def _left_rotate(self, z: AVLNode[T]) -> AVLNode[T]:
         y = z.right
+        if y is None:
+            return z
+
         T2 = y.left
 
         y.left = z
@@ -63,8 +66,11 @@ class AVLTree:
 
         return y
 
-    def _right_rotate(self, z: AVLNode) -> AVLNode:
+    def _right_rotate(self, z: AVLNode[T]) -> AVLNode[T]:
         y = z.left
+        if y is None:
+            return z
+
         T3 = y.right
 
         y.right = z
@@ -75,29 +81,35 @@ class AVLTree:
 
         return y
 
-    def _get_height(self, node: AVLNode) -> int:
+    def _get_height(self, node: AVLNode[T]) -> int:
         if not node:
             return 0
         return node.height
 
-    def _get_balance(self, node: AVLNode) -> int:
+    def _get_balance(self, node: AVLNode[T]) -> int:
         if not node:
             return 0
         return self._get_height(node.left) - self._get_height(node.right)
 
-    def inorder_traversal(self) -> Generator[Node, None, None]:
+    def inorder_traversal(self) -> Generator[T, None, None]:
         yield from self._inorder_traversal(self.root)
 
-    def _inorder_traversal(self, root: AVLNode) -> Generator[Node, None, None]:
+    def _inorder_traversal(self, root: AVLNode[T]) -> Generator[T, None, None]:
         if root:
             yield from self._inorder_traversal(root.left)
             yield root.key
             yield from self._inorder_traversal(root.right)
-    
-    def _delete(self, root: AVLNode, key: Node) -> AVLNode:
+
+    def delete(self, key: T) -> AVLNode[T]:
+        if self.root is not None:
+            self.root = self._delete(self.root, key)
+            return self.root
+        return  None
+
+    def _delete(self, root: AVLNode[T], key: T) -> AVLNode[T]:
         if not root:
             return root
-        
+            
         if key < root.key:
             root.left = self._delete(root.left, key)
         elif key > root.key:
@@ -106,13 +118,9 @@ class AVLTree:
             # Node to be deleted is found
 
             if root.left is None:
-                temp = root.right
-                root = None
-                return temp
+                return root.right
             elif root.right is None:
-                temp = root.left
-                root = None
-                return temp
+                return root.left
 
             # Node with two children: Get the inorder successor (smallest
             # in the right subtree)
@@ -152,7 +160,7 @@ class AVLTree:
 
         return root
 
-    def _min_value_node(self, node: AVLNode) -> AVLNode:
+    def _min_value_node(self, node: AVLNode[T]) -> AVLNode[T]:
         current = node
 
         # loop down to find the leftmost leaf
@@ -160,3 +168,29 @@ class AVLTree:
             current = current.left
 
         return current
+    
+    def find_predecessor(self, target_key: T) -> Optional[T]:
+        return self._find_predecessor(self.root, target_key)
+
+    def _find_predecessor(self, root: AVLNode[T], target_key: T) -> Optional[T]:
+        predecessor = None
+        while root:
+            if root.key < target_key:
+                predecessor = root.key
+                root = root.right
+            else:
+                root = root.left
+        return predecessor
+
+    def find_successor(self, target_key: T) -> Optional[T]:
+        return self._find_successor(self.root, target_key)
+
+    def _find_successor(self, root: AVLNode[T], target_key: T) -> Optional[T]:
+        successor = None
+        while root:
+            if root.key > target_key:
+                successor = root.key
+                root = root.left
+            else:
+                root = root.right
+        return successor
