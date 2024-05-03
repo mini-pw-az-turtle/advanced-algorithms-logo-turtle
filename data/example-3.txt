@@ -1,7 +1,7 @@
-penup
+pu
 fd 5
 rt 45
-pendown
+pd
 fd 19
 rt 48
 fd 8

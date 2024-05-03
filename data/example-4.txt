@@ -1,7 +1,7 @@
-penup
+pu
 fd 20
 rt 54
-pendown
+pd
 fd 7
 lt 42
 fd 20
@@ -16,10 +16,10 @@ fd 14
 lt 46
 fd 21
 rt 31
-penup
+pu
 fd 16
 lt 35
-pendown
+pd
 fd 17
 lt 46
 fd 15
@@ -34,10 +34,10 @@ fd 11
 lt 38
 fd 20
 rt 36
-penup
+pu
 fd 22
 rt 48
-pendown
+pd
 fd 6
 lt 42
 fd 22
