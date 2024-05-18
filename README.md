@@ -18,3 +18,10 @@ Aby skorzystać z generatora ściezek, nalezy wywolać plik głowny `main.py` be
 Następnie mozna wywołać wygenerowany przykład następującą komendą:
 
 - python3 src/main.py generated.txt
+
+## Source for AVL Tree implementation
+
+- https://www.geeksforgeeks.org/insertion-in-an-avl-tree/
+- https://www.geeksforgeeks.org/inorder-successor-in-binary-search-tree/
+- https://www.geeksforgeeks.org/inorder-predecessor-successor-given-key-bst/
+- https://www.geeksforgeeks.org/deletion-in-an-avl-tree/
