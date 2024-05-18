@@ -1,7 +1,7 @@
 from enum import Enum
 from timeit import timeit
 from typing import Tuple
-from avlTree import AVLTree
+from newAvlTree import AVL_Tree, TreeNode, findPreSuc
 from segment import Node, Segment
 
 def is_left(point: Node, segment: Segment) -> float:
@@ -149,9 +149,9 @@ def any_intersections(segments: list[Segment]) -> bool:
             return not self.__eq__(other)
 
     endpoints = list[Endpoint]()
-    activeEdges = list[Edge]()
 
-    #activeEdges = AVLTree[Edge]()
+    activeEdges: AVL_Tree[Edge]  = AVL_Tree[Edge]()
+    activeEdgesRoot: TreeNode[Edge] = None
     for i, segment in enumerate(segments):
         if segment.start.x == segment.end.x:
             isStartLeft = segment.start.y <= segment.end.y
@@ -166,64 +166,58 @@ def any_intersections(segments: list[Segment]) -> bool:
         segmentIndex = endpoint.label
         isLeft = endpoint.isLeft
         segment = segments[segmentIndex]
-        
-        # print(f"active edges: ")
-        # for edge in activeEdges:
 
-        # #for edge in activeEdges.inorder_traversal():
-        #     print(f"edge {edge.label}", end=" ")
-        # print("\n")
+        for edge in activeEdges.inOrder(activeEdgesRoot):
+            print(f"edge {edge.label}", end=" ")
+        print("\n")
 
         pre = suc = None
 
         if isLeft:
             # Edge is starting
             newEdge = Edge(endpoint.label)
+            
+            activeEdgesRoot = activeEdges.insert(activeEdgesRoot, newEdge)
 
-            activeEdges.append(newEdge)
-            activeEdges.sort()
+            findPreSuc.pre = None
+            findPreSuc.suc = None
+            
+            findPreSuc(activeEdgesRoot, newEdge)
 
-            for i, edge in enumerate(activeEdges):
-                if edge.label == endpoint.label:
-                    newEdgeIndx = i
-            if newEdgeIndx > 0:
-                pre = activeEdges[newEdgeIndx-1]
-            if newEdgeIndx < len(activeEdges) - 1:
-                suc = activeEdges[newEdgeIndx+1]
+            pre: TreeNode[Edge] = findPreSuc.pre
+            suc: TreeNode[Edge] = findPreSuc.suc
 
-
-            # activeEdges.insert(newEdge)
-            # pre = activeEdges.find_predecessor(newEdge)
-            # suc = activeEdges.find_successor(newEdge)
-
-            if pre is not None and intersect(segments[segmentIndex], segments[pre.label]):
-                print(f"Intersection in {segmentIndex} and {pre.label}")
+            if pre is not None and intersect(segments[segmentIndex], segments[pre.val.label]):
+                print(f"Intersection in {segmentIndex} and {pre.val.label}")
                 return True
-            if suc is not None and intersect(segments[segmentIndex], segments[suc.label]):
-                print(f"Intersection in {segmentIndex} and {suc.label}")
+            if suc is not None and intersect(segments[segmentIndex], segments[suc.val.label]):
+                print(f"Intersection in {segmentIndex} and {suc.val.label}")
                 return True
         else:
-            # Edge is endding
-            for i, edge in enumerate(activeEdges):
-                if edge.label == endpoint.label:
-                    newEdgeIndx = i
-            if newEdgeIndx > 0:
-                pre = activeEdges[newEdgeIndx-1]
-            if newEdgeIndx < len(activeEdges) - 1:
-                suc = activeEdges[newEdgeIndx+1]
 
-            # newEdge = Edge(endpoint.label)
+            endingEdge = Edge(endpoint.label)
 
-            # pre = activeEdges.find_predecessor(newEdge)
-            # suc = activeEdges.find_successor(newEdge)
-
-            if suc is not None and pre is not None and intersect(segments[suc.label], segments[pre.label]):
-                print(f"Intersection in {suc.label} and {pre.label}")
-                return True
+            findPreSuc.pre = None
+            findPreSuc.suc = None
             
-            activeEdges = list(filter(lambda x: x.label != endpoint.label, activeEdges))     
-              
-            # activeEdges.delete(newEdge)
+            findPreSuc(activeEdgesRoot, newEdge)
+
+            pre: TreeNode[Edge] = findPreSuc.pre
+            suc: TreeNode[Edge] = findPreSuc.suc
+
+            if suc is not None and pre is not None and intersect(segments[suc.val.label], segments[pre.val.label]):
+                print(f"Intersection in {suc.val.label} and {pre.val.label}")
+                return True
+
+            print(f"Pre delete of {endingEdge.label}")
+            for edge in activeEdges.inOrder(activeEdgesRoot):
+                print(f"edge {edge.label}", end=" ")
+            print("\n")
+            activeEdgesRoot = activeEdges.delete(activeEdgesRoot, endingEdge)
+            print(f"Post delete of {endingEdge.label}")
+            for edge in activeEdges.inOrder(activeEdgesRoot):
+                print(f"edge {edge.label}", end=" ")
+            print("\n")
 
     return False
 
