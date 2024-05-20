@@ -1,6 +1,8 @@
+import argparse
 import random
 
 from command import Command, CommandType
+from input_parser import InputParser
 
 def generate_commands(length: int, pen_pairs: int, pen_up_segments: int = 5) -> list[CommandType]:
     commands = []
@@ -20,3 +22,17 @@ def generate_segment(length) -> list[CommandType]:
         segment.append(Command(turn, random.randint(30, 60)))
         length -= distance
     return segment
+
+def main():
+    parser = argparse.ArgumentParser(description="Generate drawing commands.")
+    parser.add_argument("--filename", type=str, default="generated.txt", help="Output file to save the commands (default is 'generated.txt').")
+    parser.add_argument("length", type=int, help="Total length for the segments.")
+    parser.add_argument("pen_pairs", type=int, help="Number of pen up/down pairs.")
+    parser.add_argument("--pen_up_segments", type=int, default=5, help="Number of pen up segments per pair (default is 5).")
+
+    args = parser.parse_args()
+
+    commands = generate_commands(args.length, args.pen_pairs, args.pen_up_segments)
+    InputParser.write_commands_to_file(commands, args.filename)
+        
+main()
