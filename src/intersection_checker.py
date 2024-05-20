@@ -227,4 +227,4 @@ class AnyIntersections:
     def check(segments: list[Segment]) -> None:
         value = any_intersections(segments)
         execution_time = timeit(lambda: any_intersections(segments), number=1) * 1000
-        print(f"\033[KResoult: {value}\ttime: {execution_time:.4f}ms")
+        print(f"\033[KResult: {value}\ttime: {execution_time:.4f}ms")
