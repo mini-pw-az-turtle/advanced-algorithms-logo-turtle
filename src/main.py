@@ -16,8 +16,8 @@ def main():
         commandProcessor = CommandsProcessor()
         segments = commandProcessor.processCommands(commands)
 
-        print(segments)
-        print(len(segments))
+        # print(segments)
+        # print(len(segments))
         AnyIntersections.check(segments)
         draw_edges(segments)
 

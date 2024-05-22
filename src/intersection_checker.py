@@ -1,4 +1,3 @@
-from enum import Enum
 from timeit import timeit
 from typing import Tuple
 from newAvlTree import AVL_Tree, TreeNode, findPreSuc
@@ -167,9 +166,9 @@ def any_intersections(segments: list[Segment]) -> bool:
         isLeft = endpoint.isLeft
         segment = segments[segmentIndex]
 
-        for edge in activeEdges.inOrder(activeEdgesRoot):
-            print(f"edge {edge.label}", end=" ")
-        print("\n")
+        # for edge in activeEdges.inOrder(activeEdgesRoot):
+        #     print(f"edge {edge.label}", end=" ")
+        # print("\n")
 
         pre = suc = None
 
@@ -188,10 +187,10 @@ def any_intersections(segments: list[Segment]) -> bool:
             suc: TreeNode[Edge] = findPreSuc.suc
 
             if pre is not None and intersect(segments[segmentIndex], segments[pre.val.label]):
-                print(f"Intersection in {segmentIndex} and {pre.val.label}")
+                # print(f"Intersection in {segmentIndex} and {pre.val.label}")
                 return True
             if suc is not None and intersect(segments[segmentIndex], segments[suc.val.label]):
-                print(f"Intersection in {segmentIndex} and {suc.val.label}")
+                # print(f"Intersection in {segmentIndex} and {suc.val.label}")
                 return True
         else:
 
@@ -206,18 +205,18 @@ def any_intersections(segments: list[Segment]) -> bool:
             suc: TreeNode[Edge] = findPreSuc.suc
 
             if suc is not None and pre is not None and intersect(segments[suc.val.label], segments[pre.val.label]):
-                print(f"Intersection in {suc.val.label} and {pre.val.label}")
+                # print(f"Intersection in {suc.val.label} and {pre.val.label}")
                 return True
 
-            print(f"Pre delete of {endingEdge.label}")
-            for edge in activeEdges.inOrder(activeEdgesRoot):
-                print(f"edge {edge.label}", end=" ")
-            print("\n")
+            # print(f"Pre delete of {endingEdge.label}")
+            # for edge in activeEdges.inOrder(activeEdgesRoot):
+            #     print(f"edge {edge.label}", end=" ")
+            # print("\n")
             activeEdgesRoot = activeEdges.delete(activeEdgesRoot, endingEdge)
-            print(f"Post delete of {endingEdge.label}")
-            for edge in activeEdges.inOrder(activeEdgesRoot):
-                print(f"edge {edge.label}", end=" ")
-            print("\n")
+            # print(f"Post delete of {endingEdge.label}")
+            # for edge in activeEdges.inOrder(activeEdgesRoot):
+            #     print(f"edge {edge.label}", end=" ")
+            # print("\n")
 
     return False
 
