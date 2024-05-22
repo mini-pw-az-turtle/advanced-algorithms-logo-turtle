@@ -6,24 +6,18 @@ from intersection_checker import AnyIntersections
 from commandGenerator import generate_commands
 
 def main():
-    if len(sys.argv) != 2 and len(sys.argv) != 1:
-        print("Incorrect input. Example input:\n$ python src/main.py data/simple.txt\t - Solve case from file\n$ python src/main.py\t\t - generate case to file")
+    if len(sys.argv) != 2:
+        print("Incorrect input. Example input:\n$ python src/main.py data/simple.txt\t - Solve case from file\n$")
         return
-    elif len(sys.argv) == 1:
-        commandProcessor = CommandsProcessor()
-        commands = generate_commands(300, 1)
-        segments = commandProcessor.processCommands(commands)
-        InputParser.write_commands_to_file(commands, "generated.txt")
-    elif len(sys.argv) == 2:
+    else:
         print(f"Processing file {sys.argv[1]}.")
         commands = InputParser.parse_file(sys.argv[1])
     
         commandProcessor = CommandsProcessor()
         segments = commandProcessor.processCommands(commands)
 
-        print(segments)
-        print(len(segments))
-        AnyIntersections.check(segments)
+        ret = AnyIntersections.check(segments)
+        print(f"\033[KResult: {ret[0]}\ttime: {ret[1]:.4f}ms")
         draw_edges(segments)
 
 

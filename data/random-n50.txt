@@ -40,3 +40,11 @@ fd 18
 lt 42
 fd 12
 rt 30
+lt 45
+fd 19
+rt 57
+fd 20
+lt 59
+fd 10
+lt 42
+lt 90
