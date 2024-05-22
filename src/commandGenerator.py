@@ -11,9 +11,11 @@ def generate(length: int, pen_pairs: int, pen_up_segments: int = 5, force_inters
     commands = generate_commands(length, pen_pairs, pen_up_segments)
     segments = commandProcessor.processCommands(commands)
     if(force_intersections):
-        while not AnyIntersections.check(segments):
-            commands = generate_commands(length+1 // 2, pen_pairs, pen_up_segments)
+        while True:
+            commands = generate_commands((length + 1) // 2, pen_pairs, pen_up_segments)
             segments = commandProcessor.processCommands(commands)
+            if AnyIntersections.check(segments):
+                break
         tmp = commands.copy()
         random.shuffle(tmp)
         commands.extend(tmp)
