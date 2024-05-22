@@ -223,8 +223,8 @@ def any_intersections(segments: list[Segment]) -> bool:
 
 class AnyIntersections:
     @staticmethod
-    def check(segments: list[Segment]) -> bool:
+    def check(segments: list[Segment]) -> Tuple[bool, float]:
         value = any_intersections(segments)
         execution_time = timeit(lambda: any_intersections(segments), number=1) * 1000
-        print(f"\033[KResult: {value}\ttime: {execution_time:.4f}ms")
-        return value
+
+        return [value, execution_time]

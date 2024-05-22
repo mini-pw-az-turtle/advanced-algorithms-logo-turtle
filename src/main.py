@@ -16,9 +16,8 @@ def main():
         commandProcessor = CommandsProcessor()
         segments = commandProcessor.processCommands(commands)
 
-        # print(segments)
-        # print(len(segments))
-        AnyIntersections.check(segments)
+        ret = AnyIntersections.check(segments)
+        print(f"\033[KResult: {ret[0]}\ttime: {ret[1]:.4f}ms")
         draw_edges(segments)
 
 
